@@ -17,6 +17,13 @@ from typing import Optional
 
 import cv2
 import mediapipe as mp
+try:
+    import mediapipe.python.solutions.face_mesh as mp_face_mesh
+except Exception as e:
+    import traceback
+    traceback.print_exc()
+    mp_face_mesh = None
+
 import numpy as np
 
 logger = logging.getLogger("prahari.detection.face")
@@ -78,7 +85,10 @@ class FaceDetector:
         self.roi_size = roi_size
 
         # Initialize MediaPipe FaceMesh
-        self._mp_face_mesh = mp.solutions.face_mesh
+        self._mp_face_mesh = mp_face_mesh
+        if self._mp_face_mesh is None:
+            raise RuntimeError("MediaPipe solutions failed to import correctly.")
+            
         self._face_mesh = self._mp_face_mesh.FaceMesh(
             static_image_mode=False,
             max_num_faces=1,
