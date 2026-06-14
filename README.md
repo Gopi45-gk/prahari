@@ -1,3 +1,11 @@
+---
+title: PRAHARI Backend
+emoji: 🚂
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
 # 🛡️ PRAHARI — Loco Pilot Fatigue & Microsleep Detection System
 
 **AI-powered real-time fatigue detection for Indian Railways loco pilots**
