@@ -1,0 +1,32 @@
+PRAHARI - FULL TECH STACK
+
+=======================================
+FRONTEND (Command Center UI)
+=======================================
+Framework: React 19, TypeScript
+Routing & SSR: TanStack Router, TanStack Start
+Build Tool: Vite
+Styling: Tailwind CSS v4, tw-animate-css
+UI Components: shadcn/ui (Radix UI Primitives), Lucide React
+Animations: Framer Motion
+Maps & Data Viz: Leaflet, React-Leaflet, Recharts
+Forms & Validation: React Hook Form, Zod
+Backend-as-a-Service / Auth: Firebase Authentication, Firestore
+State Management: TanStack Query
+
+=======================================
+BACKEND API (Middleware)
+=======================================
+Framework: FastAPI, Uvicorn (ASGI server)
+Real-Time Communication: WebSockets
+Language: Python 3.10+
+
+=======================================
+MACHINE LEARNING & COMPUTER VISION (PRAHARI Engine)
+=======================================
+Deep Learning Frameworks: PyTorch, TorchVision
+Computer Vision: Ultralytics (YOLO), OpenCV, MediaPipe
+Scientific Computing: NumPy, SciPy, scikit-learn
+Architecture & Validation: Pydantic
+Monitoring: Prometheus Client
+Tooling: Ruff (Linting), Pytest (Testing)
