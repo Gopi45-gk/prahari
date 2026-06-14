@@ -1,0 +1,74 @@
+================================================================================
+PRAHARI - FULL SYSTEM ARCHITECTURE
+================================================================================
+
+1. SYSTEM OVERVIEW
+------------------
+PRAHARI is a multi-tier, AI-powered real-time fatigue and microsleep detection 
+system. It processes live video feeds from train cabins, detects operator 
+fatigue using deep learning models, and streams risk alerts to a centralized 
+Command Center Dashboard via WebSockets.
+
+2. HIGH-LEVEL ARCHITECTURE (THE PIPELINE)
+-----------------------------------------
+[ Loco Pilot Cabin ]
+    |
+    |-- Video Stream (Camera Feed)
+    v
+[ Edge / Local Processing (ML Engine) ]
+    |-- 1. Face Detection (MediaPipe FaceMesh)
+    |-- 2. Feature Extraction (EAR, MAR, Head Pose, PERCLOS)
+    |-- 3. Spatial CNN Classifier (Frame-by-frame fatigue detection)
+    |-- 4. Temporal LSTM (Time-series analysis of fatigue trends)
+    |-- 5. Fusion Engine (Combines metrics into a Crew Alertness Index - CAI)
+    |-- 6. Risk Engine (Thresholding, categorization, and alert generation)
+    v
+[ Backend Middleware (FastAPI) ]
+    |-- REST API (Configuration, historical data, health checks)
+    |-- WebSocket Server (Low-latency real-time telemetry streaming)
+    v
+[ Cloud & Database Layer ]
+    |-- Firebase Authentication (Secure access)
+    |-- Firebase Firestore (Persistent storage for users, logs, and incidents)
+    v
+[ Command Center UI (React + Vite) ]
+    |-- Real-time interactive dashboards
+    |-- Live network maps (Leaflet)
+    |-- Predictive analytics & AI Copilot interface
+    |-- Incident Response & Crew Intelligence panels
+
+3. COMPONENT BREAKDOWN
+----------------------
+A. FRONTEND (Command Center UI)
+   - Core: React 19, TypeScript, Vite
+   - Routing: TanStack Router
+   - UI/UX: Tailwind CSS v4, shadcn/ui, Framer Motion
+   - Data Visualization: Recharts, React-Leaflet
+   - State & Comm: TanStack Query, WebSockets
+
+B. BACKEND (Middleware / API Layer)
+   - Core: Python 3.10+, FastAPI
+   - Server: Uvicorn (ASGI)
+   - Real-Time Comm: WebSockets (Streaming telemetry at <50ms latency)
+   - Database Integration: Firebase Admin SDK / API bridging
+
+C. MACHINE LEARNING ENGINE
+   - Core Frameworks: PyTorch, TorchVision
+   - Face Tracking: MediaPipe (468 facial landmarks), OpenCV
+   - Spatial Analysis: Custom CNN (Alert, Drowsy, Yawning, Microsleep, Distracted)
+   - Temporal Analysis: Bi-directional LSTM with attention mechanisms
+   - Data Validation: Pydantic
+
+4. DATA FLOW & LATENCY
+----------------------
+- Camera capture to ML inference: ~15-25ms
+- Risk classification & fusion: <5ms
+- WebSocket transmission to UI: <10ms
+- Total end-to-end latency: <50ms (Ensuring real-time intervention for SPAD prevention)
+
+5. RISK CLASSIFICATION PROTOCOL
+-------------------------------
+- 00-40 (LOW): Normal monitoring.
+- 41-70 (MEDIUM): Increased monitoring, visual UI warning.
+- 71-85 (HIGH): Local audible alert triggered in the cabin.
+- 86-100 (CRITICAL): Emergency Control Room alert dispatched immediately.
