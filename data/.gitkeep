@@ -1,0 +1,7 @@
+# Training data directory
+# Expected structure for CNN training:
+# data/train/0_alert/
+# data/train/1_slightly_fatigued/
+# data/train/2_fatigued/
+# data/train/3_severe_fatigue/
+# data/train/4_microsleep/

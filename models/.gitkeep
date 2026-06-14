@@ -1,0 +1,5 @@
+# Model weights directory
+# Place trained model files here:
+# - fatigue_cnn.onnx (or fatigue_cnn_best.pt)
+# - temporal_lstm.pt
+# - yolov8n-face.pt (if using YOLO fallback)

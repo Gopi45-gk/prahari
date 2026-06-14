@@ -1,0 +1,137 @@
+# ═══════════════════════════════════════════════════════════════════════
+# PRAHARI — Loco Pilot Fatigue & Microsleep Detection System
+# Runtime Configuration
+# ═══════════════════════════════════════════════════════════════════════
+
+# Crew identification
+crew:
+  id: "LP001"
+  name: "Default Loco Pilot"
+  division: "Northern Railway"
+
+# Camera source
+camera:
+  # Use integer for local webcam (0, 1, 2...) or RTSP URL string
+  source: 0
+  width: 640
+  height: 480
+  fps: 30
+
+# Device configuration
+device:
+  # "auto" will detect CUDA, "cuda", "cpu"
+  mode: "auto"
+  # Use FP16 inference when on GPU
+  fp16: true
+
+# Model paths (relative to project root)
+models:
+  yolo_face: "models/yolov8n-face.pt"
+  fatigue_cnn: "models/fatigue_cnn.onnx"
+  temporal_lstm: "models/temporal_lstm.pt"
+
+# Face detection
+detection:
+  # MediaPipe FaceMesh confidence thresholds
+  min_detection_confidence: 0.5
+  min_tracking_confidence: 0.5
+  # YOLO fallback confidence
+  yolo_confidence: 0.4
+  # CLAHE preprocessing for low-light
+  clahe_clip_limit: 2.0
+  clahe_grid_size: 8
+
+# Feature extraction thresholds
+features:
+  # Eye Aspect Ratio
+  ear_threshold: 0.21
+  ear_consec_frames: 3
+  # Mouth Aspect Ratio (yawn detection)
+  mar_threshold: 0.65
+  mar_consec_frames: 10
+  # PERCLOS window (seconds)
+  perclos_window: 60
+  perclos_alert_threshold: 0.20
+  # Blink duration bounds (seconds)
+  blink_min_duration: 0.1
+  blink_max_duration: 0.4
+  # Head pose thresholds (degrees)
+  head_pitch_threshold: 15.0
+  head_yaw_threshold: 30.0
+  head_droop_duration: 2.0
+  # Sliding window sizes
+  blink_rate_window: 60
+  yawn_rate_window: 300
+
+# CNN fatigue classifier
+classifier:
+  input_size: 224
+  num_classes: 5
+  class_names:
+    - "ALERT"
+    - "SLIGHTLY_FATIGUED"
+    - "FATIGUED"
+    - "SEVERE_FATIGUE"
+    - "MICROSLEEP"
+
+# Temporal analysis
+temporal:
+  sequence_length: 60
+  sample_rate: 1.0  # Hz (1 feature vector per second)
+  hidden_size: 64
+  num_layers: 2
+
+# Fusion engine weights
+fusion:
+  weights:
+    cnn_classification: 0.25
+    perclos: 0.20
+    ear: 0.10
+    mar: 0.08
+    blink_pattern: 0.07
+    head_pose: 0.10
+    temporal_trend: 0.12
+    microsleep_prob: 0.08
+  # Exponential moving average smoothing factor
+  ema_alpha: 0.3
+
+# Risk engine thresholds
+risk:
+  low_max: 40
+  medium_max: 70
+  high_max: 85
+  # CAI above this = CRITICAL
+  critical_min: 86
+  # Special triggers
+  microsleep_eye_closed_seconds: 2.0
+  face_absent_seconds: 10.0
+  emergency_cai_threshold: 95
+  emergency_duration_seconds: 5
+
+# Alert system
+alerts:
+  # Minimum seconds between same-level alerts
+  cooldown_seconds: 30
+  # Audio alert
+  audio_enabled: true
+  audio_file: "assets/alert_tone.wav"
+  # Visual alert on dashboard
+  visual_enabled: true
+  # External API notification
+  api_enabled: false
+  api_endpoint: "http://localhost:9000/api/v1/fatigue-alert"
+  api_timeout: 5
+
+# Server configuration
+server:
+  host: "0.0.0.0"
+  port: 8000
+  # Dashboard auto-open in browser
+  open_browser: true
+
+# Monitoring
+monitoring:
+  prometheus_enabled: true
+  prometheus_port: 9090
+  # Log level: DEBUG, INFO, WARNING, ERROR
+  log_level: "INFO"

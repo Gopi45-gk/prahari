@@ -1,0 +1,198 @@
+Metadata-Version: 2.4
+Name: prahari
+Version: 1.0.0
+Summary: AI-powered Loco Pilot Fatigue & Microsleep Detection System for Indian Railways
+Author: PRAHARI Team
+License: Proprietary — Indian Railways / PRAHARI Project
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: torch>=2.1.0
+Requires-Dist: torchvision>=0.16.0
+Requires-Dist: ultralytics>=8.1.0
+Requires-Dist: opencv-python>=4.8.0
+Requires-Dist: mediapipe>=0.10.9
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: scipy>=1.11.0
+Requires-Dist: pydantic>=2.5.0
+Requires-Dist: pydantic-settings>=2.1.0
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: prometheus-client>=0.19.0
+Requires-Dist: pillow>=10.0.0
+Requires-Dist: aiohttp>=3.9.0
+Provides-Extra: gpu
+Requires-Dist: onnxruntime-gpu>=1.17.0; extra == "gpu"
+Provides-Extra: training
+Requires-Dist: tensorboard>=2.15.0; extra == "training"
+Requires-Dist: scikit-learn>=1.3.0; extra == "training"
+Requires-Dist: matplotlib>=3.8.0; extra == "training"
+Requires-Dist: seaborn>=0.13.0; extra == "training"
+Requires-Dist: albumentations>=1.3.0; extra == "training"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23.0; extra == "dev"
+Requires-Dist: httpx>=0.26.0; extra == "dev"
+Requires-Dist: ruff>=0.2.0; extra == "dev"
+
+# 🛡️ PRAHARI — Loco Pilot Fatigue & Microsleep Detection System
+
+**AI-powered real-time fatigue detection for Indian Railways loco pilots**
+
+Built with PyTorch, MediaPipe, FastAPI, and WebSocket streaming. Designed to prevent Signal Passed At Danger (SPAD) incidents through continuous monitoring of driver alertness.
+
+---
+
+## Architecture
+
+```
+Camera → Face Detection → Feature Extraction → CNN Classification
+                                              → Temporal LSTM
+                              ↓                    ↓
+                         Multi-Modal Fusion → Risk Engine → Alerts
+                              ↓
+                      Dashboard (WebSocket)
+```
+
+### 6-Stage Processing Pipeline
+
+| Stage | Component | Purpose |
+|-------|-----------|---------|
+| 1 | **Face Detection** | MediaPipe FaceMesh (468 landmarks) + CLAHE low-light |
+| 2 | **Feature Extraction** | EAR, MAR, PERCLOS, blink metrics, head pose (PnP) |
+| 3 | **CNN Classifier** | 5-class fatigue classification (Alert → Microsleep) |
+| 4 | **Temporal LSTM** | BiLSTM + attention for fatigue trend & microsleep onset |
+| 5 | **Fusion Engine** | 8-signal weighted fusion → Crew Alertness Index (0-100) |
+| 6 | **Risk Engine** | 4-level risk classification + alert dispatch |
+
+---
+
+## Quick Start
+
+### 1. Install Dependencies
+
+```bash
+# Create virtual environment
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+# source .venv/bin/activate  # Linux/Mac
+
+# Install PRAHARI
+pip install -e ".[dev]"
+
+# For GPU support
+pip install -e ".[gpu]"
+```
+
+### 2. Run the System
+
+```bash
+# Start with default webcam
+python -m prahari.main
+
+# Or with custom config
+PRAHARI_CAMERA_SOURCE=0 python -m prahari.main
+```
+
+### 3. Open Dashboard
+
+Navigate to **http://localhost:8000** — the dashboard opens automatically.
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/health` | System health check |
+| `GET` | `/api/status` | Current fatigue metrics snapshot |
+| `POST` | `/api/fatigue-alert` | Receive/log fatigue alerts |
+| `GET` | `/api/history` | Recent alert history |
+| `POST` | `/api/config` | Runtime config updates |
+| `GET` | `/api/metrics` | Prometheus metrics |
+| `WS` | `/ws/stream` | Real-time telemetry stream |
+
+### Alert Payload
+
+```json
+{
+  "crew_id": "LP001",
+  "alertness_score": 18,
+  "fatigue_score": 92,
+  "risk_level": "CRITICAL",
+  "timestamp": "2026-06-12T10:00:00Z"
+}
+```
+
+---
+
+## Training
+
+### CNN Fatigue Classifier
+
+```bash
+python -m prahari.training.train_cnn \
+  --data data/train \
+  --epochs 100 \
+  --batch-size 32 \
+  --lr 1e-3
+```
+
+### Temporal LSTM
+
+```bash
+python -m prahari.training.train_lstm \
+  --data data/temporal \
+  --epochs 80 \
+  --batch-size 64
+```
+
+### Evaluation
+
+```bash
+python -m prahari.training.evaluate \
+  --model models/fatigue_cnn_best.pt \
+  --data data/val
+```
+
+---
+
+## Docker Deployment
+
+```bash
+# Build and run with GPU
+docker compose up --build
+
+# Services:
+#   PRAHARI:    http://localhost:8000
+#   Prometheus: http://localhost:9090
+#   Grafana:    http://localhost:3000
+```
+
+---
+
+## Risk Levels
+
+| CAI Range | Level | Action |
+|-----------|-------|--------|
+| 0–40 | 🟢 LOW | Normal monitoring |
+| 41–70 | 🟡 MEDIUM | Increased monitoring |
+| 71–85 | 🟠 HIGH | Audible alert to operator |
+| 86–100 | 🔴 CRITICAL | Control room alert + emergency |
+
+---
+
+## Target Metrics
+
+| Metric | Target | Description |
+|--------|--------|-------------|
+| Accuracy | > 95% | Overall classification accuracy |
+| Recall | > 97% | Sensitivity to fatigue states |
+| Precision | > 95% | Low false alarms |
+| FPR | < 3% | False positive rate |
+| Latency | < 50ms | End-to-end inference time |
+| FPS | ≥ 30 | Real-time processing speed |
+
+---
+
+## License
+
+Proprietary — Indian Railways / PRAHARI Project
