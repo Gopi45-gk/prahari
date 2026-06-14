@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: prahari-backend
+    env: python
+    buildCommand: "pip install -e . && pip install fastapi uvicorn websockets python-multipart"
+    startCommand: "uvicorn frontend.backend.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0

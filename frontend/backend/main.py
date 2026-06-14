@@ -11,10 +11,12 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-# Add prahari to path
-prahari_path = r"g:\My Drive\prahari\src"
+# Add prahari to path dynamically (so it works on Render Linux and Windows local)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.dirname(os.path.dirname(current_dir))
+prahari_path = os.path.join(root_dir, "src")
 if prahari_path not in sys.path:
-    sys.path.append(prahari_path)
+    sys.path.insert(0, prahari_path)
 
 from prahari.detection.face_detector import FaceDetector
 from prahari.detection.feature_extractor import FeatureExtractor
